@@ -19,10 +19,13 @@ namespace Server
         public Socket socket { get; private set; }
         public NetworkStream networkStream { get; private set; }
 
+        public StreamBlock dataBlock { get; private set; }
+
         public AutoRegSocket(Socket baseSocket)
         {
             socket = baseSocket;
             networkStream = new NetworkStream(socket);
+            dataBlock = new StreamBlock();
         }
 
         protected override OnRegisterEventArgs<AutoRegSocket> __BuildRegisterArgs()

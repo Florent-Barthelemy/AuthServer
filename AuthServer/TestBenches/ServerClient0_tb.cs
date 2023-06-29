@@ -43,11 +43,11 @@ namespace AuthServer.TestBenches
                 Random rand = new Random();
                 byte[] data = new byte[100];
                 rand.NextBytes(data);
-                client.SendData(data, 5);
-                client2.SendData(data, 5);
+                client.SendData(data);
+                client2.SendData(data);
 
-                client.ShutDownAndDisconnect();
-                client2.ShutDownAndDisconnect();
+                client.CleanDisconnect();
+                client2.CleanDisconnect();
 
                 Console.WriteLine("Disconnected!");
             }
@@ -116,7 +116,7 @@ namespace AuthServer.TestBenches
                     if (clients[i].Connect().Result == false)
                     {
                         rand.NextBytes(dataBuf);
-                        clients[i].SendData(dataBuf, 1);
+                        clients[i].SendData(dataBuf);
                     }
                 
                 Console.WriteLine("Done sending data");
@@ -124,7 +124,7 @@ namespace AuthServer.TestBenches
                 //Disconnect clients
                 for (int i = 0; i < clients.Length; i++)
                 {
-                    if (clients[i].ShutDownAndDisconnect().Result == false)
+                    if (clients[i].CleanDisconnect().Result == false)
                     {
                         Console.WriteLine("Oops, something went wrong during disconnection of client : " + i);
                         if (clients[i].TryGetLastException(out Exception ex))
@@ -146,6 +146,60 @@ namespace AuthServer.TestBenches
         }
     }
 
+    public static class SenidngBytes
+    {
+        public static void Run()
+        {
+            //10ko data payload
+            int messageLen = 130_990;
+            
+            Random random = new Random();
+            TCPServer server = new TCPServer(4444, 10);
+            
+            TCPClient client = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
+            TCPClient client2 = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
 
+            server.StartServerThread();
+            server.clientProcessor.OnClientDataReceivedEvent += ProcessBytes;
+
+
+            byte[] buffer = new byte[messageLen];
+            random.NextBytes(buffer);
+
+            byte[] buffer2 = new byte[messageLen];
+            random.NextBytes(buffer2);
+
+            RunClientTask(client, buffer);
+
+            RunClientTask(client2, buffer2);
+
+
+
+
+        }
+
+        public static void ProcessBytes(object sender, ClientDataReceivedEventArgs e)
+        {
+            Console.WriteLine("Server received "+ e.data.Length + " bytes from client : " + e.socket.RemoteEndPoint.ToString() + " Processing....");
+            for(int i = 0; i < e.data.Length; i++)
+            {
+                // 500o / ms
+                if(i%500 == 0)
+                    Thread.Sleep(1);
+            }
+            Console.Write("Done!\n");
+        }
+
+        public static Task RunClientTask(TCPClient c, byte[] dataToSend)
+        {
+            return Task.Run(async () => 
+            {
+                await c.Connect();
+                await c.SendData(dataToSend);              
+                await c.CleanDisconnect();
+
+            }); 
+        }
+    }
 
 }

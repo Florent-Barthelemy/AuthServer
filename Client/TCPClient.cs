@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Configuration;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace Client
         /// the task returns false and updates the lastException field
         /// </summary>
         /// <returns></returns>
-        public Task<bool> ShutDownAndDisconnect()
+        public Task<bool> CleanDisconnect()
         {
             return Task<bool>.Factory.StartNew(() =>
             {
@@ -54,12 +55,30 @@ namespace Client
             });
         }
 
-        public void SendData(byte[] data, int nPackets)
+
+        /// <summary>
+        /// Sends data to the remote host
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <returns>A Task</returns>
+        public Task SendData(byte[] data)
         {
-            for (int i = 0; i < nPackets ; i++)
+            return Task.Factory.StartNew(async () => 
             {
-                client.Send(data);
-            }
+                ArraySegment<byte> buffer = new ArraySegment<byte>(data);
+                try
+                {
+                    _ = await client.SendAsync(buffer, SocketFlags.None);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    saveLastException(ex);
+                    return;
+                }
+            
+            });
+            
         }
 
         /// <summary>

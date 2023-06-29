@@ -18,6 +18,8 @@ namespace Server
 
         public Thread processingThread { get; private set; }
 
+        public event EventHandler<ClientDataReceivedEventArgs> OnClientDataReceivedEvent;
+
 
         /// <summary>
         /// Creates a new instance of the client processor
@@ -27,7 +29,6 @@ namespace Server
         {
             autoRegSockets = new AutoRegisterArray<AutoRegSocket>(maxClients, AllocationPolicy.firstFreeElement);
         }
-
 
         public void StartProcessingThread()
         {
@@ -48,11 +49,32 @@ namespace Server
             {
                 foreach (AutoRegSocket sock in autoRegSockets.array.AggregatedArray())
                 {
-                    var streamData = await ReadStream(sock, 1024);
+                    var streamData = await ReadStream(sock, 130_990);
 
+                    //if socket has sent a FIN
                     if (streamData.Item1 == 0)
-                        CloseAndUnregister(sock);
-                        
+                    {
+                        //Sending FIN ACK
+                        sock.socket.Shutdown(SocketShutdown.Both);
+
+                        //Release ressources
+                        sock.socket.Close();
+
+                        //Unregister from autoRegArray & further processing
+                        sock.PreUnregister();
+                    }
+                    else
+                    {
+                        //Data can be processed
+                        OnClientDataReceivedEvent?.Invoke(this, new ClientDataReceivedEventArgs()
+                        {
+                            data = streamData.Item2,
+                            socket = sock.socket,
+                            eventDate = DateTime.Now
+                        });
+
+                    }
+
                 }
 
                 autoRegSockets.array.DeleteAllMarked();
@@ -62,8 +84,8 @@ namespace Server
         /// <summary>
         /// Returns a variable-sized array of received bytes
         /// </summary>
-        /// <param name="socket"></param>
-        /// <returns></returns>
+        /// <param name="socket">Socket to read from</param>
+        /// <returns>Bytes read, data</returns>
         public Task<Tuple<int, byte[]>> ReadStream(AutoRegSocket socket, int bufferSize)
         {
             return Task<Tuple<int, byte[]>>.Factory.StartNew(() =>
@@ -79,37 +101,12 @@ namespace Server
                 
             });
         }
+    }
 
-        private void CloseAndUnregister(AutoRegSocket socket)
-        {
-            //Sending FIN
-            socket.socket.Shutdown(SocketShutdown.Both);
-            
-            //Release ressources
-            socket.socket.Close();
-
-            //Unregister from autoRegArray & further processing
-            socket.PreUnregister();
-        }
-
-        [Obsolete("Method is obsolete", true)]
-        public void StartSocketHandler(Socket socket)
-        {
-            Task.Run(() =>
-            {
-                NetworkStream ns = new NetworkStream(socket);
-                byte[] buffer = new byte[4096];
-                int readc = 1;
-                while (readc != 0)
-                {
-                    readc = ns.Read(buffer, 0, buffer.Length);
-                    Console.WriteLine("Received : " + readc);
-                }
-
-                Console.WriteLine("Client Sent disconnect");
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
-            });
-        }
+    public class ClientDataReceivedEventArgs : EventArgs
+    {
+        public byte[] data { get; set; }
+        public Socket socket { get; set; }
+        public DateTime eventDate { get; set; }
     }
 }

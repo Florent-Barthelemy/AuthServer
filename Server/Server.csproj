@@ -46,6 +46,7 @@
     <Compile Include="AutoRegSocket.cs" />
     <Compile Include="ClientHandler.cs" />
     <Compile Include="ClientProcessor.cs" />
+    <Compile Include="StreamBlock.cs" />
     <Compile Include="TCPServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
