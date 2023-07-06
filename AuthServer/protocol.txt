@@ -1,0 +1,49 @@
+#Protocol definition for NeoPlasma RTS
+
+
+
+
+PROTOCOL VERSION 1.0 :
+
+All strings transported using the protocol are encoded in UTF8
+
+
+Currently transmitted in 2 TCP packets.
+would be nice to reduce to a single one.
+
+
+The protocol allows :
+a client  name of maximum 256 bytes
+a payload size of maximum 65536 bytes
+
+total max size : 2 + 2 + 2 + 20 + 2 + 2^(8) + 2 + 65536 + 2 = 65823 bytes
+
+maximum tcp data size : 65495 bytes
+
+-------------------------------------------------------------------------
+CONSTANTS :
+
+SOF				 = 0xFF_EE
+PROTOCOL_VERSION = 0x00_01
+APP_ID			 = 0x13_24
+
+EOF				 = 0xEE_FF
+
+
+-------------------------------------------------------------------------
+HEADER :
+																				 				 									  65535
+#bytes      :	  2			2        	   2			    19	           1     			30   			        2		      dataSize_bytes		  2
+description :   [SOF] [PROTOCOL_VERSION][APP ID] [RESERVED (time?)] [ClientNameLen] [< CLIENT NAME (string) >] [dataSize] [            DATA           ] [EOF]
+
+
+
+-------------------------------------------------------------------------
+DATA :
+
+
+ramining : 65536 - 2 + 4 = 
+
+#bytes      :	        2						2			     SER_DATA_SIZE BYTES
+description : [SERIALIZED_OBJECT_ID] [SERIALIZED DATA SIZE] [  SERIALIZED DATA BLOCK ]
+										  (65530 max !)

@@ -4,17 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{363EDCFC-421D-4B05-8F52-BF942BD071C6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>AuthServer</RootNamespace>
-    <AssemblyName>AuthServer</AssemblyName>
+    <ProjectGuid>{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Protocol</RootNamespace>
+    <AssemblyName>Protocol</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -43,30 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArgManager.cs" />
-    <Compile Include="AuthServerMain.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestBenches\AllocatedArray_tb.cs" />
-    <Compile Include="TestBenches\AutoReg_tb.cs" />
-    <Compile Include="TestBenches\ServerClient0_tb.cs" />
-    <Compile Include="Utils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Client\Client.csproj">
-      <Project>{93b41472-896a-4304-a0b3-345924d3cb75}</Project>
-      <Name>Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Protocol\Protocol.csproj">
-      <Project>{df405cf1-a464-4ade-a0d4-7bfa2c94c08e}</Project>
-      <Name>Protocol</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Server\Server.csproj">
-      <Project>{da8e9510-0d71-46ef-84c7-d4580e262a60}</Project>
-      <Name>Server</Name>
-    </ProjectReference>
+    <Compile Include="DataHandlerPacket.cs" />
+    <Compile Include="SerializedObjectPacket.cs" />
+    <Compile Include="Toolbox.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

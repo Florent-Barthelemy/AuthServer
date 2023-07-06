@@ -9,6 +9,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "..\Server\Server.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "..\Client\Client.csproj", "{93B41472-896A-4304-A0B3-345924D3CB75}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "notes", "notes", "{E0D2D069-234A-48DE-88C5-7D226DF132C5}"
+	ProjectSection(SolutionItems) = preProject
+		protocol.txt = protocol.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol", "..\Protocol\Protocol.csproj", "{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Attributes", "..\Attributes\Attributes.csproj", "{D0ACF3A1-0F83-42BC-8BD5-C6A478B0156D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +36,14 @@ Global
 		{93B41472-896A-4304-A0B3-345924D3CB75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93B41472-896A-4304-A0B3-345924D3CB75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93B41472-896A-4304-A0B3-345924D3CB75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF405CF1-A464-4ADE-A0D4-7BFA2C94C08E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0ACF3A1-0F83-42BC-8BD5-C6A478B0156D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0ACF3A1-0F83-42BC-8BD5-C6A478B0156D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0ACF3A1-0F83-42BC-8BD5-C6A478B0156D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0ACF3A1-0F83-42BC-8BD5-C6A478B0156D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

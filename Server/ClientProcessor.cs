@@ -49,7 +49,7 @@ namespace Server
             {
                 foreach (AutoRegSocket sock in autoRegSockets.array.AggregatedArray())
                 {
-                    var streamData = await ReadStream(sock, 130_990);
+                    var streamData = await ReadStream(sock, 100_000);
 
                     //if socket has sent a FIN
                     if (streamData.Item1 == 0)

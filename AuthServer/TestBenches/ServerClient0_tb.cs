@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Client;
 using System.Threading;
+using Protocol;
 
 namespace AuthServer.TestBenches
 {
@@ -146,32 +147,43 @@ namespace AuthServer.TestBenches
         }
     }
 
-    public static class SenidngBytes
+    public static class SendingBytes
     {
         public static void Run()
         {
             //10ko data payload
-            int messageLen = 130_990;
+            int messageLen = 65_495;
             
             Random random = new Random();
             TCPServer server = new TCPServer(4444, 10);
             
             TCPClient client = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
             TCPClient client2 = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
-
+              
             server.StartServerThread();
             server.clientProcessor.OnClientDataReceivedEvent += ProcessBytes;
 
+            //Initial object to send
+            byte[] encodedData = { 0xD0, 0xD0, 0xD0, 0xD0 };
+            
+            SerializedObjectPacket objData = new SerializedObjectPacket(ObjectID.Test_Object, encodedData);
+            byte[] data = objData.Encode();
 
-            byte[] buffer = new byte[messageLen];
-            random.NextBytes(buffer);
 
-            byte[] buffer2 = new byte[messageLen];
-            random.NextBytes(buffer2);
+            SerializedObjectPacket cpk = new SerializedObjectPacket();
+            cpk.Decode(data);
 
-            RunClientTask(client, buffer);
+            cpk.Decode(cpk.Encode());
 
-            RunClientTask(client2, buffer2);
+
+
+            DataHandlerPacket packet = new DataHandlerPacket(ProtocolVersion.V1_0, AppID.NeoPlasma, DataType.SerializedObject, data, (UInt32)0x01020304);
+
+            var x = packet.rptMs;
+            var y = packet.eof;
+
+            RunClientTask(client, packet.Encode());
+
 
 
 
@@ -180,14 +192,13 @@ namespace AuthServer.TestBenches
 
         public static void ProcessBytes(object sender, ClientDataReceivedEventArgs e)
         {
-            Console.WriteLine("Server received "+ e.data.Length + " bytes from client : " + e.socket.RemoteEndPoint.ToString() + " Processing....");
-            for(int i = 0; i < e.data.Length; i++)
-            {
-                // 500o / ms
-                if(i%500 == 0)
-                    Thread.Sleep(1);
-            }
-            Console.Write("Done!\n");
+            byte[] data = e.data;
+        
+            DataHandlerPacket received = new DataHandlerPacket();
+            received.Decode(data);
+
+            
+            Console.WriteLine("Task sent");
         }
 
         public static Task RunClientTask(TCPClient c, byte[] dataToSend)
@@ -201,5 +212,24 @@ namespace AuthServer.TestBenches
             }); 
         }
     }
+
+    public static class ProtocolTester
+    {
+        public static void Run()
+        {
+            byte[] data = { 0xA0, 0xA0, 0xA0, 0xA0 };
+            DataHandlerPacket packet = new DataHandlerPacket(ProtocolVersion.V1_0, AppID.NeoPlasma, DataType.SerializedObject, data);
+            
+            
+            byte[] encoded = packet.Encode();
+
+
+           
+
+
+
+        }
+    }
+    
 
 }

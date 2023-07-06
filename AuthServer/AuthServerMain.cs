@@ -18,7 +18,7 @@ namespace AuthServer
 
         static void Main(string[] args)
         {
-            SenidngBytes.Run();
+            SendingBytes.Run();
 
 
             Thread.CurrentThread.Join();
