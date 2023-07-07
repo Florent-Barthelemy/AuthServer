@@ -89,7 +89,7 @@ namespace Protocol
 
             if(endian == Endian.Big)
             {
-                result = (UInt32)(bytes[3] << 0 + bytes[2] << 8 + bytes[1] << 16 + bytes[0] << 24);
+                result = (UInt32)((bytes[3] << 0) + (bytes[2] << 8) + (bytes[1] << 16) + (bytes[0] << 24));
             }
 
             else if (endian == Endian.Little)

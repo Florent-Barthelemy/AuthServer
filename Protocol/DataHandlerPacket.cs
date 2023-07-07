@@ -9,10 +9,6 @@ using System.Threading.Tasks;
 
 namespace Protocol
 {
-    
-    
-
-
     /// <summary>
     /// Structure defining the necessary data for a handlerPacket
     /// </summary>
@@ -21,8 +17,8 @@ namespace Protocol
         private byte[] SOF;
         public ushort sof
         {
-            set { SOF = Toolbox.UInt16ToBytes(value, Endian.Little); }
-            get { return Toolbox.BytesToUInt16(SOF, Endian.Little); }
+            set { SOF = Toolbox.UInt16ToBytes(value, Endian.Big); }
+            get { return Toolbox.BytesToUInt16(SOF, Endian.Big); }
         }
 
         private byte PROTOCOL_VERSION;
@@ -48,8 +44,8 @@ namespace Protocol
 
         public ushort payloadSize
         {
-            set { PAYLOAD_SIZE = Toolbox.UInt16ToBytes(value, Endian.Little); }
-            get { return Toolbox.BytesToUInt16(PAYLOAD_SIZE, Endian.Little); }
+            set { PAYLOAD_SIZE = Toolbox.UInt16ToBytes(value, Endian.Big); }
+            get { return Toolbox.BytesToUInt16(PAYLOAD_SIZE, Endian.Big); }
         }
         private byte[] PAYLOAD_SIZE;
          
@@ -62,16 +58,18 @@ namespace Protocol
 
         public UInt32 rptMs
         {
+            //This code should be looked at, inversion is due to buffer blockCopy
+            //in decode() method
             set { RPT_MS = Toolbox.UInt32ToBytes(value, Endian.Little); }
-            get { return Toolbox.BytesToUInt32(RPT_MS, Endian.Little); }
+            get { return Toolbox.BytesToUInt32(RPT_MS, Endian.Big); }
         }
         private byte[] RPT_MS;
 
         private byte[] EOF;
         public ushort eof
         {
-            set { EOF = Toolbox.UInt16ToBytes(value, Endian.Little); }
-            get { return Toolbox.BytesToUInt16(EOF, Endian.Little); }
+            set { EOF = Toolbox.UInt16ToBytes(value, Endian.Big); }
+            get { return Toolbox.BytesToUInt16(EOF, Endian.Big); }
         }
 
         /// <summary>
@@ -138,7 +136,37 @@ namespace Protocol
         /// <returns>A reconstructed DataHandlerPacket </returns>
         public override void Decode(byte[] encodedData)
         {
-            throw new Exception("DataHandlerPacket Decode is Unimplemented");
+            int ptr = 0;
+            
+            //Decoding SOF
+            SOF = new byte[SIZES.SOF];
+            SOF[0] = encodedData[ptr++];
+            SOF[1] = encodedData[ptr++];
+
+            //Decoding next bytes...
+            PROTOCOL_VERSION = encodedData[ptr++];
+            APP_ID = encodedData[ptr++];
+            DATA_TYPE = encodedData[ptr++];
+
+            //Decoding payload size
+            PAYLOAD_SIZE = new byte[SIZES.PayloadSize];
+            PAYLOAD_SIZE[0] = encodedData[ptr++];
+            PAYLOAD_SIZE[1] = encodedData[ptr++];
+
+            //Decoding payload data
+            PAYLOAD_DATA = new byte[payloadSize];
+            Buffer.BlockCopy(encodedData, ptr, PAYLOAD_DATA, 0, payloadSize);
+            ptr += payloadSize;
+
+            //Decoding RPT
+            RPT_MS = new byte[SIZES.RPT];
+            Buffer.BlockCopy(encodedData, ptr, RPT_MS, 0, SIZES.RPT);
+            ptr += SIZES.RPT;
+
+            //Decoding EOF
+            EOF = new byte[SIZES.EOF];
+            EOF[0] = encodedData[ptr++];
+            EOF[1] = encodedData[ptr++];
 
         }
     }

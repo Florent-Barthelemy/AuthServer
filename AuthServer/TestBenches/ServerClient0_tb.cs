@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Client;
 using System.Threading;
 using Protocol;
+using System.CodeDom;
 
 namespace AuthServer.TestBenches
 {
@@ -151,17 +152,17 @@ namespace AuthServer.TestBenches
     {
         public static void Run()
         {
-            //10ko data payload
-            int messageLen = 65_495;
-            
-            Random random = new Random();
+            //Creating a new server
             TCPServer server = new TCPServer(4444, 10);
-            
-            TCPClient client = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
-            TCPClient client2 = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
-              
-            server.StartServerThread();
+
+            //Registering a data received event handler method
             server.clientProcessor.OnClientDataReceivedEvent += ProcessBytes;
+
+            //Creating a new client
+            TCPClient client = new TCPClient(Utils.GetLocalIPv4(NetworkInterfaceType.Wireless80211), 4444);
+
+            server.StartServerThread();
+            
 
             //Initial object to send
             byte[] encodedData = { 0xD0, 0xD0, 0xD0, 0xD0 };
@@ -170,17 +171,8 @@ namespace AuthServer.TestBenches
             byte[] data = objData.Encode();
 
 
-            SerializedObjectPacket cpk = new SerializedObjectPacket();
-            cpk.Decode(data);
-
-            cpk.Decode(cpk.Encode());
-
-
-
             DataHandlerPacket packet = new DataHandlerPacket(ProtocolVersion.V1_0, AppID.NeoPlasma, DataType.SerializedObject, data, (UInt32)0x01020304);
 
-            var x = packet.rptMs;
-            var y = packet.eof;
 
             RunClientTask(client, packet.Encode());
 
@@ -196,6 +188,12 @@ namespace AuthServer.TestBenches
         
             DataHandlerPacket received = new DataHandlerPacket();
             received.Decode(data);
+
+            SerializedObjectPacket sp = new SerializedObjectPacket();
+            sp.Decode(received.data);
+
+
+            Console.WriteLine("Received packet : \n Version : " + received.version.ToString() + " \n appID : " + received.appID.ToString() + "\n dataType : " + received.dataType.ToString() + "\n received bytes : " + received.data.Length + "\n RPTms : " + received.rptMs);
 
             
             Console.WriteLine("Task sent");
