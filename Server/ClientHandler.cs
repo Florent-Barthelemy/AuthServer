@@ -26,9 +26,8 @@ namespace Server
         public int GetClientAllocator()
         {
 
+            throw new NotImplementedException();
 
-
-            return 0;
         }
 
 

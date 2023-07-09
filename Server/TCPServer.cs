@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading;
@@ -69,7 +70,6 @@ namespace Server
                 
                 //Code to handle server stop
 
-
                 //Code to handle server stop
             }));
 
@@ -85,6 +85,7 @@ namespace Server
             return Task.Run(() =>
             {
                 stopServer = true;
+                clientProcessor.StopProcessingThread();
                 while (serverThread.IsAlive) { }
             });
         }

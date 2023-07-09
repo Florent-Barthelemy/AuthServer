@@ -14,6 +14,7 @@ namespace Server
     /// </summary>
     public class ClientProcessor
     {
+        bool stopProcessingThread = false;
         public AutoRegisterArray<AutoRegSocket> autoRegSockets { get; private set; }
 
         public Thread processingThread { get; private set; }
@@ -35,9 +36,22 @@ namespace Server
             processingThread = new Thread(new ThreadStart(() =>
             {
                 _CycleClientsProc();
+
+                //Handle processing thread stop
+
+                //Handle processing thread stop
             }));
 
             processingThread.Start();
+        }
+
+        public Task StopProcessingThread()
+        {
+            return Task.Run(() =>
+            {
+                stopProcessingThread = true;
+                while (processingThread.IsAlive) { }
+            });
         }
 
         /// <summary>
@@ -45,34 +59,39 @@ namespace Server
         /// </summary>
         private async void _CycleClientsProc()
         {
-            while (true)
+            while (!stopProcessingThread)
             {
                 foreach (AutoRegSocket sock in autoRegSockets.array.AggregatedArray())
                 {
-                    var streamData = await ReadStream(sock, 100_000);
-
-                    //if socket has sent a FIN
-                    if (streamData.Item1 == 0)
+                    if (sock.networkStream.DataAvailable)
                     {
-                        //Sending FIN ACK
-                        sock.socket.Shutdown(SocketShutdown.Both);
+                        var streamData = await ReadStream(sock, 65495);
 
-                        //Release ressources
-                        sock.socket.Close();
 
-                        //Unregister from autoRegArray & further processing
-                        sock.PreUnregister();
-                    }
-                    else
-                    {
-                        //Data can be processed
-                        OnClientDataReceivedEvent?.Invoke(this, new ClientDataReceivedEventArgs()
+
+                        //if socket has sent a FIN
+                        if (streamData.Length == 0)
                         {
-                            data = streamData.Item2,
-                            socket = sock.socket,
-                            eventDate = DateTime.Now
-                        });
+                            //Sending FIN ACK
+                            sock.socket.Shutdown(SocketShutdown.Both);
 
+                            //Release ressources
+                            sock.socket.Close();
+
+                            //Unregister from autoRegArray & further processing
+                            sock.PreUnregister();
+                        }
+                        else
+                        {
+                            //Data can be processed
+                            OnClientDataReceivedEvent?.Invoke(this, new ClientDataReceivedEventArgs()
+                            {
+                                data = streamData,
+                                socket = sock.socket,
+                                eventDate = DateTime.Now
+                            });
+
+                        }
                     }
 
                 }
@@ -86,18 +105,22 @@ namespace Server
         /// </summary>
         /// <param name="socket">Socket to read from</param>
         /// <returns>Bytes read, data</returns>
-        public Task<Tuple<int, byte[]>> ReadStream(AutoRegSocket socket, int bufferSize)
+        public Task<byte[]> ReadStream(AutoRegSocket socket, int bufferSize)
         {
-            return Task<Tuple<int, byte[]>>.Factory.StartNew(() =>
+            return Task<byte[]>.Factory.StartNew(() =>
             {
+               
                 //Reading the AutoRegSocket stream...
                 byte[] buffer = new byte[bufferSize];
                 int bytesRead = socket.networkStream.Read(buffer, 0, buffer.Length);
 
+                byte[] readData = new byte[bytesRead];
+                Buffer.BlockCopy(buffer, 0, readData, 0, bytesRead);
+
                 socket.networkStream.Flush();
 
                 //Return the retrieved data
-                return Tuple.Create(bytesRead, buffer);
+                return readData;
                 
             });
         }

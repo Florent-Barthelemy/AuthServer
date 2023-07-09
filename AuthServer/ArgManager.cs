@@ -48,9 +48,9 @@ namespace AuthServer
         /// <param name="argName">Command name (with -)</param>
         /// <param name="argNumber">Number off next args to pass in the callback after the command call</param>
         /// <param name="callback"></param>
-        public static void RegisterArg(string argName, int argArgsCount, ArgCallback callback, string helpText, string aliasName = "")
+        public static void RegisterArg(string argName, int argArgsCount, ArgCallback callback, string helpText, string aliasName = "", bool isMendatory = false)
         {
-            registeredArgs.Add(new CommandLineArg(argName, aliasName, helpText, argArgsCount, callback));
+            registeredArgs.Add(new CommandLineArg(argName, aliasName, helpText, argArgsCount, callback, isMendatory));
         }
 
         /// <summary>
@@ -91,13 +91,15 @@ namespace AuthServer
         public int argNumber;
         public ArgManager.ArgCallback callback;
 
+        public bool isMendatory = false;
+
         /// <summary>
         /// Creates a new CommandLineArg model
         /// </summary>
         /// <param name="ArgName"></param>
         /// <param name="AliasName">set AliasName to ( "" ) to set no aliases</param>
         /// <param name="ArgsArgNumber">Number of args after arg command</param>
-        public CommandLineArg(string ArgName, string AliasName, string Helptext, int ArgsArgNumber, ArgManager.ArgCallback Callback)
+        public CommandLineArg(string ArgName, string AliasName, string Helptext, int ArgsArgNumber, ArgManager.ArgCallback Callback, bool IsMendatory = false)
         {
             argName = ArgName;
             aliasName = AliasName;
@@ -105,6 +107,7 @@ namespace AuthServer
             argNumber = ArgsArgNumber;
             callback = Callback;
             helpText = Helptext;
+            isMendatory = IsMendatory;
         }
 
         /// <summary>
