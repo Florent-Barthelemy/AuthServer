@@ -53,7 +53,15 @@ namespace Server
             listeningSocket.Bind(localEndpoint);
 
             clientProcessor = new ClientProcessor(maxConnections);
+        }
 
+
+        /// <summary>
+        /// Returns all the clients connected to the server
+        /// </summary>
+        public IEnumerable<AutoRegSocket> GetClients()
+        {
+            return clientProcessor.autoRegSockets.array.AggregatedArray();
         }
 
         /// <summary>
@@ -114,6 +122,7 @@ namespace Server
 
                 OnNewClientConnectedEvent?.Invoke(this, new NewClientConnectedEventArgs()
                 {
+                    autoSock = aSocket,
                     socket = newConnection,
                     eventDate = DateTime.Now
                 });
@@ -125,6 +134,7 @@ namespace Server
 
     public class NewClientConnectedEventArgs : EventArgs
     {
+        public AutoRegSocket autoSock { get; set; }
         public Socket socket {get; set;}
         public DateTime eventDate { get; set; }
     }

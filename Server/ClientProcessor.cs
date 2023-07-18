@@ -68,7 +68,6 @@ namespace Server
                         var streamData = await ReadStream(sock, 65495);
 
 
-
                         //if socket has sent a FIN
                         if (streamData.Length == 0)
                         {
@@ -86,6 +85,7 @@ namespace Server
                             //Data can be processed
                             OnClientDataReceivedEvent?.Invoke(this, new ClientDataReceivedEventArgs()
                             {
+                                autoRegSocket = sock,
                                 data = streamData,
                                 socket = sock.socket,
                                 eventDate = DateTime.Now
@@ -128,6 +128,7 @@ namespace Server
 
     public class ClientDataReceivedEventArgs : EventArgs
     {
+        public AutoRegSocket autoRegSocket { get; set; }
         public byte[] data { get; set; }
         public Socket socket { get; set; }
         public DateTime eventDate { get; set; }
