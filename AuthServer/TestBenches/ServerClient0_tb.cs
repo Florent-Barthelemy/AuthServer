@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Client;
+using ClientNs;
 using System.Threading;
 using Protocol;
 using System.CodeDom;

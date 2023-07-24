@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client
+namespace ClientNs
 {
     public class TCPClient
     {
@@ -103,7 +103,7 @@ namespace Client
                 try
                 {
                     client.Shutdown(SocketShutdown.Both);
-                    client.Disconnect(true);
+                    client.Close();
                     return true;
                 }
                 catch (Exception ex)

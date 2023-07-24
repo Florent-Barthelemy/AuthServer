@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AuthServer.TestBenches;
 using AuthServer.TestBenches.AutoRegistration;
-using Client;
+using ClientNs;
 using Protocol;
 using Server;
 
@@ -49,6 +49,7 @@ namespace AuthServer
             //Maybe tryc this and log the error in a file to avoid user frightening 
             ArgManager.ParseArgs(args);
 
+            Thread.CurrentThread.Join();
             return 0;
         }
 
@@ -89,7 +90,8 @@ namespace AuthServer
             //Creating a new server and start it
             server = new TCPServer((int)serverPort, (int)serverMaxClients);
             server.StartServerThread();
-            
+
+            server.OnNewClientConnectedEvent += Server_OnNewClientConnectedEvent;
 
             while (!server.listeningSocket.IsBound) { }
             Console.WriteLine("Socket is bound, listening...");
@@ -97,6 +99,16 @@ namespace AuthServer
 
             //server.StopServerThread();
             
+        }
+
+        private static void Server_OnNewClientConnectedEvent(object sender, NewClientConnectedEventArgs e)
+        {
+            Console.WriteLine("\nNew client connected --> " + e.autoSock.UID);
+            Console.WriteLine("Active clients list :");
+            foreach(AutoRegSocket s in server.GetClients())
+            {
+                Console.WriteLine("->client UID : " + s.UID);
+            }
         }
 
         /// <summary>

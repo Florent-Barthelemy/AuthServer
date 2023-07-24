@@ -45,8 +45,9 @@ namespace Server
 
         public ClientProcessor clientProcessor { get; private set; }
 
-        public TCPServer(int port, int maxConnections)
+        public TCPServer(int port, int maxConnections, int timeout = 1000)
         {
+            timeoutValue = timeout;
             listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             localEndpoint = new IPEndPoint(IPAddress.Any, port);
